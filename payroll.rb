@@ -48,17 +48,12 @@ class Owner < Employee
     super.to_f + (bonus - (bonus*@@tax))
   end
 
-  def find_gross_sale_value(file)
-    sales_data = CsvReader.new(file).parse
-    @gross_sales = []
-    sales_data.each do |row|
-      @gross_sales << row["gross_sale_value"].to_f
-    end
-    @gross_sales.reduce(:+)
+  def get_csv(file)
+    @sales = file
   end
 
   def check_bonus?
-    @gross_sales.reduce(:+) > 250000
+    Sale.new(@sales).monthly_sales > 250000
   end
 
   def bonus
@@ -73,21 +68,12 @@ class Commission < Employee
   end
 
   def determine_commission
-    @commibonus.to_f*monthly_sales
+    @commibonus.to_f*Sale.new(@sales).monthly_sales(@name).to_f
   end
 
   def get_csv(sales)
-    @sales = CsvReader.new(sales).parse
+    @sales = sales
   end
-
-  def monthly_sales
-    temp_array = []
-    @sales.each do |row|
-      temp_array << row["gross_sale_value"].to_f if row["last_name"] == @name.split(' ')[1]
-    end
-    temp_array.reduce(:+)
-  end
-
 end
 
 class Quota < Employee
@@ -97,23 +83,37 @@ class Quota < Employee
   end
 
   def get_csv(sales)
-    @sales = CsvReader.new(sales).parse
+    @sales = sales
   end
 
   def bonus
     check_bonus? ? @commibonus.to_f : 0
   end
 
-  def monthly_sales
-    temp_array = []
-    @sales.each do |row|
-      temp_array << row["gross_sale_value"].to_f if row["last_name"] == @name.split(' ')[1]
-    end
-    temp_array.reduce(:+)
+  def check_bonus?
+    Sale.new(@sales).monthly_sales(@name).to_f >= @quota.to_f
+  end
+end
+
+class Sale
+  def initialize(file)
+    @sales = CsvReader.new(file).parse
   end
 
-  def check_bonus?
-    monthly_sales.to_f >= @quota.to_f
+  def monthly_sales(name=nil)
+    if name.nil?
+      @gross_sales = []
+      @sales.each do |row|
+        @gross_sales << row["gross_sale_value"].to_f
+      end
+      @gross_sales.reduce(:+)
+    else
+      temp_array = []
+      @sales.each do |row|
+        temp_array << row["gross_sale_value"].to_f if row["last_name"] == name.split(' ')[1]
+      end
+      temp_array.reduce(:+)
+    end
   end
 end
 
@@ -134,7 +134,7 @@ class Payroll
 
       if var == "owner"
         @employees[row["name"]] = Owner.new(row)
-        @employees[row["name"]].find_gross_sale_value(@sales)
+        @employees[row["name"]].get_csv(@sales)
       elsif var == "commission"
         @employees[row["name"]] = Commission.new(row)
         @employees[row["name"]].get_csv(@sales)
@@ -153,7 +153,7 @@ class Payroll
   end
 
   def find_monthly_gross
-    puts @employees["Charles Burns"].find_gross_sale_value(@sales)
+    puts Sale.new(@sales).monthly_sales
   end
 
   def monthly_salary(employee)
@@ -176,7 +176,6 @@ powerplant.monthly_salary("Bob Lob")
 powerplant.monthly_salary("Jimmy McMahon")
 powerplant.monthly_salary("Charles Burns")
 powerplant.monthly_salary("Clancy Wiggum")
-
 
 
 
