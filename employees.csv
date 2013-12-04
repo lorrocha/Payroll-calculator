@@ -1,9 +1,9 @@
 name,type,salary,commibonus,quota
-Johnny Smith,employee,80000
-Jimmy McMahon,employee,85000
+Johnny Smith,developer,80000
+Jimmy McMahon,developer,85000
 Bob Lob,commission,50000,0.005
 Ricky Bobby,commission,40000,0.015
-Edna Krabappel,employee,87000
+Edna Krabappel,designer,87000
 Willie Groundskeeper,quota,75000,5000,60000
 Clancy Wiggum,quota,80000,10000,80000
 Charles Burns,owner,500000,1000

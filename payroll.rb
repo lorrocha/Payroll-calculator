@@ -1,16 +1,39 @@
 require 'CSV'
 require 'pry'
+
 class CsvReader
   def initialize(file)
-    @file = file
+    if File.exists?(file)
+      @file = file
+    else
+      raise "File does not exist."
+    end
   end
 
-  def parse
-    temp_array = []
-    CSV.foreach(@file, headers:true) do |row|
-      temp_array << row
+  def parse_employees
+    headers = CSV.open(@file, 'r') { |csv| csv.first }
+    unless headers == ["name", "type", "salary", "commibonus", "quota"]
+      raise "Not a valid Employee CSV file. Please ensure the headers include 'name', 'type', 'salary', 'commibonus', and 'quota'."
+    else
+      temp_array = []
+      CSV.foreach(@file, headers:true) do |row|
+        temp_array << row
+      end
+      temp_array
     end
-    temp_array
+  end
+
+  def parse_sales
+    headers = CSV.open(@file, 'r') { |csv| csv.first }
+    unless headers == ["last_name", "gross_sale_value"]
+      raise "Not a valid Sales CSV file. Please ensure the headers include 'last_name' and 'gross_sale_value'."
+    else
+      temp_array = []
+      CSV.foreach(@file, headers:true) do |row|
+        temp_array << row
+      end
+      temp_array
+    end
   end
 end
 
@@ -97,7 +120,7 @@ end
 
 class Sale
   def initialize(file)
-    @sales = CsvReader.new(file).parse
+    @sales = CsvReader.new(file).parse_sales
   end
 
   def monthly_sales(name=nil)
@@ -128,7 +151,7 @@ class Payroll
   end
 
   def populate_employees
-    employees = CsvReader.new(@employeesfile).parse
+    employees = CsvReader.new(@employeesfile).parse_employees
     employees.each do |row|
       var = row["type"]
 
@@ -157,7 +180,7 @@ class Payroll
   end
 
   def monthly_salary(employee)
-    monthly_salary unless @employees.include?(employee)
+    raise "Employee is not found. Did you run populate_employees?" unless @employees.include?(employee)
     puts "***#{@employees[employee].name}***"
     puts "Gross Salary: $#{@employees[employee].calculate_monthly_salary}"
     puts "Commission: $#{@employees[employee].determine_commission}" if @employees[employee].class == Commission
@@ -171,11 +194,11 @@ powerplant = Payroll.new('sales_data.csv','employees.csv')
 powerplant.populate_employees
 powerplant.list_employees
 puts '~~~~~~~~~~~~~~~'
-powerplant.find_monthly_gross
 powerplant.monthly_salary("Bob Lob")
 powerplant.monthly_salary("Jimmy McMahon")
 powerplant.monthly_salary("Charles Burns")
 powerplant.monthly_salary("Clancy Wiggum")
+binding.pry
 
 
 

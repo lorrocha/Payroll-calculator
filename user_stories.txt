@@ -1,0 +1,28 @@
+As an accountant,
+I want to accept a CSV with this month's Sales Data
+So that I can calculate bonuses, net gains, and commissions
+
+*Accepts a CSV with a header of 'last name' and 'gross_sale_value'
+*If either of the CSV headers are omitted, CSV is not accepted
+
+As an accountant,
+I want to accept a CSV with employee information
+So that I accurately calculate their payroll
+
+*Accepts a CSV with the headers 'name', 'type', 'salary', 'commibonus', 'quota'
+*If the headers are omitted, CSV is not accepted
+
+As an accountant,
+I want to calculate the gross monthly sales for the company
+So that I can report the company's earnings
+
+*Takes from the month's sales data csv
+*Prints out the gross monthly sales for the company
+
+As an accountant,
+I want to output an employee sales report
+So that I can report the sales of an individual employee for the month
+
+*Calculates and displays an employees Gross Salary for the month, and their net pay once taxes have been deducted
+*If an employee receives a bonus or a commission, outputs that as well
+*If someone tries to look at the report of an employee that is not on the roster, they get an error message
